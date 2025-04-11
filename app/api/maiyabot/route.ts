@@ -8,9 +8,35 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, name, niche } = await req.json();
+    const { messages, name, niche, prompt, summarize } = await req.json();
     const todayKey = new Date().toISOString().split('T')[0];
 
+    // 📝 If summarizing only
+    if (summarize) {
+      const summaryPrompt = `Summarize this chat in 2-3 helpful sentences for a business owner. Keep it friendly and include key points with emojis.\n\n${messages
+        .map((m: any) => `${m.role === 'user' ? 'User' : 'Maiya'}: ${m.content}`)
+        .join('\n')}`;
+
+      const summaryResponse = await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: `You are a friendly business coach bot summarizing a conversation.` },
+          { role: 'user', content: summaryPrompt },
+        ],
+        temperature: 0.7,
+      });
+
+      const summary = summaryResponse.choices[0].message.content;
+
+      await supabase.from('summaries').upsert({
+        date: todayKey,
+        summary, // ✅ fix typo: not `summery`
+      });
+
+      return NextResponse.json({ summary });
+    }
+
+    // 🧠 Normal conversation flow
     const personalizedIntro =
       name && niche
         ? `Their name is ${name} and they are in the ${niche} niche. Greet them casually using their name and occasionally reference their niche.`
@@ -44,7 +70,6 @@ Example:
 You are here to hype and help them like a business bestie! 🎀
     `.trim();
 
-    // Generate reply
     const chatResponse = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
@@ -55,24 +80,6 @@ You are here to hype and help them like a business bestie! 🎀
     });
 
     const replyContent = chatResponse.choices[0].message.content;
-
-    // Generate session summary
-    const summaryResponse = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: `Summarize this chat session in 2-3 short sentences. Keep it friendly and include key points with emojis.` },
-        ...messages,
-      ],
-      temperature: 0.7,
-    });
-
-    const summary = summaryResponse.choices[0].message.content;
-
-    // Save summary to Supabase
-    await supabase.from('summaries').upsert({
-      date: todayKey,
-      summery: summary,
-    });
 
     return NextResponse.json({ reply: replyContent });
   } catch (error) {

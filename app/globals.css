@@ -50,3 +50,61 @@ body {
     width: 100%;
   }
 }
+
+/* 💅 Cute Pink Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #ffe4f1; /* light pink track */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #ec4899; /* hot pink thumb */
+  border-radius: 10px;
+  border: 2px solid #ffe4f1; /* soft pink outline */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #db2777; /* deeper pink on hover */
+}
+
+/* 🌈 Smooth scroll behavior */
+html,
+body {
+  height: 100%;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+}
+/* ✨ Prevent chat messages from sliding under the input bar */
+.chat-scroll-padding {
+  padding-bottom: 8rem; /* Extra room so chat doesn't get hidden */
+}
+
+/* 📌 Make sure sticky sidebar and input stay on top */
+.sticky-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 40;
+  background: white; /* keeps it solid if content scrolls behind */
+}
+
+/* ✨ Optional: floating input shadow when user scrolls */
+.floating-input-bar {
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  background: white;
+  border-radius: 1.5rem;
+}
+
+@keyframes shimmer {
+  0% { opacity: 0; transform: translateY(-10px); }
+  25% { opacity: 1; transform: translateY(0); }
+  75% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(10px); }
+}
+.animate-shimmer {
+  animation: shimmer 2.5s ease-in-out forwards;
+}
